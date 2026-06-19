@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent SPT • Savings Specialist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+
+        :root {
+            --primary: #0F172A;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .chat-container {
+            scrollbar-width: thin;
+            scrollbar-color: #64748b30 #f8fafc;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .agent-bubble {
+            background-color: #0F172A;
+            color: white;
+            border-bottom-left-radius: 4px;
+        }
+
+        .agent-bubble strong { color: #34d399; font-weight: 600; }
+
+        .user-bubble {
+            background-color: #e0e7ff;
+            color: #1e2937;
+            border-bottom-right-radius: 4px;
+        }
+
+        .highlight { color: #34d399; font-weight: 600; }
+
+        .quick-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.1);
+        }
+
+        .savings-highlight {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.35rem;
+            line-height: 1.1;
+        }
+
+        .section-header {
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .chat-scroll {
+            scroll-behavior: smooth;
+        }
+
+        .agent-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #0F172A, #1e2937);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 0 0 3px #e0e7ff;
+        }
+
+        .metric-card {
+            transition: transform 0.2s ease;
+        }
+
+        .nav-active {
+            background-color: #0F172A;
+            color: white;
+            border-radius: 9999px;
+        }
+
+        .savings-number {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .option-btn {
+            transition: all 0.15s ease;
+        }
+
+        .option-btn:active {
+            transform: scale(0.985);
+        }
+
+        .chat-message {
+            animation: fadeInUp 0.25s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .professional-shadow {
+            box-shadow: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.08);
+        }
+
+        .booking-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 11px 20px;
+            background: #059669;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13.5px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .booking-link:hover { background: #047857; transform: translateY(-1px); }
+
+        .typing-dots { display: flex; gap: 5px; align-items: center; }
+        .typing-dots span {
+            width: 7px; height: 7px; background: #94a3b8; border-radius: 50%;
+            animation: typingBounce 1.2s infinite;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        #micBtn.listening { color: #059669 !important; }
+        #micBtn.unsupported { opacity: 0.4; cursor: not-allowed; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Top Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-x-4">
+                    <!-- Logo -->
+                    <div class="flex items-center gap-x-3">
+                        <div class="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-inner">
+                            <span class="text-white text-2xl font-bold tracking-tighter">SPT</span>
+                        </div>
+                        <div>
+                            <span class="font-display text-2xl font-semibold tracking-tighter">Agent SPT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-x-2">
+                    <!-- Voice Toggle (voice input) -->
+                    <div class="flex items-center bg-slate-100 rounded-3xl p-1 text-sm">
+                        <button onclick="toggleMic()" id="voice-btn"
+                                class="flex items-center gap-x-2 px-4 py-1.5 rounded-3xl text-sm font-medium transition-colors hover:bg-white">
+                            <i class="fa-solid fa-microphone-slash mr-1.5" id="voice-icon"></i>
+                            <span id="voice-text">Voice Off</span>
+                        </button>
+                    </div>
+
+                    <!-- Actions -->
+                    <button onclick="restartChat()"
+                            class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-3xl transition-colors">
+                        <i class="fa-solid fa-redo mr-1.5"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 pt-8 pb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- Chat Interface -->
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-3xl professional-shadow border border-slate-200 overflow-hidden flex flex-col h-[640px]">
+
+                    <!-- Chat Header -->
+                    <div class="px-6 py-5 border-b bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between">
+                        <div class="flex items-center gap-x-4">
+                            <div class="agent-avatar rounded-2xl">SPT</div>
+                            <div>
+                                <div class="font-semibold text-lg tracking-tight">Agent SPT</div>
+                                <div class="text-emerald-400 text-xs flex items-center gap-x-1.5">
+                                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                                    ONLINE • Savings &amp; Profitability Specialist
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs opacity-75">Your business cost-cutting expert</div>
+                        </div>
+                    </div>
+
+                    <!-- Messages Area -->
+                    <div id="messages"
+                         class="flex-1 p-6 overflow-y-auto chat-container chat-scroll space-y-6 bg-slate-50"></div>
+
+                    <!-- Input Area -->
+                    <div class="border-t bg-white p-4">
+                        <div class="flex items-center gap-x-3">
+                            <div class="flex-1 relative">
+                                <textarea id="userInput" rows="1"
+                                       class="w-full border border-slate-300 focus:border-slate-400 focus:ring-1 focus:ring-slate-400 rounded-3xl pl-5 pr-12 py-3.5 text-sm placeholder:text-slate-400 outline-none transition-all resize-none"
+                                       placeholder="Type your answer or choice here..."
+                                       onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                                <button id="micBtn" onclick="toggleMic()"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors"
+                                        title="Voice input">
+                                    <i class="fa-solid fa-microphone text-lg"></i>
+                                </button>
+                            </div>
+                            <button onclick="sendMessage()"
+                                    class="bg-slate-900 hover:bg-black transition-colors text-white w-12 h-12 flex-shrink-0 rounded-3xl flex items-center justify-center shadow-inner">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="text-[10px] text-center text-slate-400 mt-2">Agent SPT • Confidential • No obligation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar: Live Summary -->
+            <div class="lg:col-span-4">
+                <div class="bg-white rounded-3xl professional-shadow border border-slate-200 p-6 sticky top-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <div class="section-header text-emerald-700">Your Savings Dashboard</div>
+                            <div class="text-xl font-semibold tracking-tight">Live Estimate</div>
+                        </div>
+                        <i class="fa-solid fa-chart-line text-3xl text-emerald-600"></i>
+                    </div>
+
+                    <!-- Total Savings -->
+                    <div class="bg-gradient-to-br from-emerald-600 to-emerald-500 text-white rounded-2xl p-5 mb-5">
+                        <div class="text-emerald-100 text-xs tracking-[1px] font-medium">TOTAL ESTIMATED ANNUAL SAVINGS</div>
+                        <div id="total-savings" class="text-5xl font-bold tracking-tighter savings-number mt-1">$0</div>
+                        <div class="text-emerald-200 text-xs mt-1">across explored areas</div>
+                    </div>
+
+                    <!-- Breakdown -->
+                    <div id="savings-breakdown" class="space-y-3 mb-6 text-sm">
+                        <div class="text-xs section-header text-slate-500 px-1">BREAKDOWN</div>
+                    </div>
+
+                    <div class="pt-4 border-t">
+                        <a href="https://calendly.com/sptresiliency/agent-spt-discovery" target="_blank"
+                                class="w-full flex items-center justify-center gap-x-3 bg-emerald-600 hover:bg-emerald-700 transition-all text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-600/30">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>Book Discovery Call</span>
+                        </a>
+                        <div class="text-center mt-3">
+                            <a href="https://calendly.com/sptresiliency/agent-spt-discovery" target="_blank"
+                               class="text-xs text-emerald-700 hover:text-emerald-800 underline decoration-dotted">
+                                https://calendly.com/sptresiliency/agent-spt-discovery
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 text-[10px] leading-snug text-slate-500 px-1">
+                        All estimates are preliminary calculations.
+                        Final customized savings and solutions are confirmed in your live discovery call.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+/*
+=============================================================
+ELECTRIC FLOW — EXACT SEQUENCE
+=============================================================
+
+STEP 1 — QUALIFICATION (state + bill + provider)
+  e_state   → ask state
+  e_bill    → ask monthly electric bill
+  e_provider→ ask provider → run elecQualify()
+              IF deregulated  → go to e_dereg_crunch
+              IF NOT deregulated → go to e_kw1
+
+STEP 2A — DEREGULATED: show electric savings
+  e_dereg_crunch → "crunching..." → show 12.5% savings → go to e_kw1
+
+STEP 2B — NON-DEREGULATED: skip to subpanel
+  (no savings message, no dereg questions)
+
+STEP 3 — SUB PANELS (KW Saver — never named)
+  e_kw1     → ask how many sub panels
+              IF number → calc cost/savings/payback → show result → go to e_gas_offer
+              IF no/none → "we'll cover on call" → go to e_gas_offer
+
+STEP 4 — NATURAL GAS
+  e_gas_offer → IF state supports gas deregulation → ask "want to explore gas savings?"
+                IF not → skip to e_aq
+  e_gas_yes   → ask gas provider → qualify
+                IF qualified → e_gas_bill
+                IF not → skip to e_aq
+  e_gas_bill  → ask monthly gas bill (or range)
+  e_gas_range → show range picker
+                → calc 12% savings → go to e_aq
+
+STEP 5 — AIR QUALITY / SMART FILTER
+  e_aq      → "interested in improving air quality + 15% energy savings?"
+              IF yes → calc 15% of electric bill → go to e_done
+              IF no  → go to e_done
+
+STEP 6 — DONE
+  e_done    → sum all savings, add to total, show total, upsell
+=============================================================
+*/
+
+// ─── EMAILJS ──────────────────────────────────────────────────────────────────
+var EMAILJS_SERVICE  = "AgentSPT_EmailJS";
+var EMAILJS_TEMPLATE = "AgentSPT_EmailTemplate";
+var EMAILJS_KEY      = "QKh7Vwrv9_Q6NjTqX";
+
+// ─── SUBDOMAIN CONFIG ─────────────────────────────────────────────────────────
+var SUBDOMAIN_CONFIG = {
+  "ed-osborne.agentspt.com":        { cc: "edosborne05@yahoo.com",           name: "Ed Osborne" },
+  "jose-izquierdo.agentspt.com":    { cc: "jaisolar.oncore@gmail.com",       name: "Jose Izquierdo" },
+  "mike-sullivan.agentspt.com":     { cc: "msullivan@alliedresiliency.com",  name: "Mike Sullivan" },
+  "allied-resiliency.agentspt.com": { cc: "msullivan@alliedresiliency.com",  name: "Mike Sullivan" },
+  "sptresiliency.agentspt.com":     { cc: "msullivan@alliedresiliency.com",  name: "Mike Sullivan" }
+};
+var _subdomainClient = SUBDOMAIN_CONFIG[window.location.hostname] || null;
+
+function initEmailJS() { /* REST API — no SDK init needed */ }
+
+function sendSummaryEmail() {
+  var ec  = D.data.fullTime || D.data.employees || 0;
+  var plo = ec * 600;
+  var phi = ec * 900;
+
+  // Recipient is the subdomain owner; fall back to Mike Sullivan
+  var primaryEmail = _subdomainClient ? _subdomainClient.cc   : "";
+  var primaryName  = _subdomainClient ? _subdomainClient.name : "AgentSPT";
+
+  var templateParams = {
+    agent_email:        primaryEmail,
+    agent_name:         primaryName,
+    referral_tag:       primaryName,
+    company_name:       D.data.companyName      || "—",
+    date:               new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+    state:              D.data.electricState     || "—",
+    electric_provider:  D.data.electricProvider  || "—",
+    electric_bill:      D.data.electricBill      ? fmt(D.data.electricBill) + "/mo"       : "—",
+    elec_dereg_savings: D.data.elecDeregSavings  ? fmt(D.data.elecDeregSavings) + "/yr"   : "—",
+    main_panel:         D.data.totalPanels !== undefined ? "1"                              : "—",
+    total_subpanels:    D.data.totalPanels !== undefined ? String(D.data.totalPanels - 1)   : "—",
+    kw_savings:         D.data.kwSavings         ? fmt(D.data.kwSavings) + "/yr"          : "—",
+    gas_provider:       D.data.gasProvider       || "—",
+    gas_bill:           D.data.gasBill           ? fmt(D.data.gasBill) + "/mo"            : "—",
+    gas_savings:        D.data.gasSavings        ? fmt(D.data.gasSavings) + "/yr"         : "—",
+    aq_savings:         D.data.aqSavings         ? fmt(D.data.aqSavings) + "/yr"          : "—",
+    water_bill:         D.data.waterBill         ? fmt(D.data.waterBill) + "/mo"          : "—",
+    valve_size:         D.data.valveSize         || "—",
+    water_savings:      D.data.waterBill         ? fmt(Math.round(D.data.waterBill * 0.20 * 12)) + "/yr" : "—",
+    employees:          ec ? String(ec)          : "—",
+    payroll_savings:    ec >= 8                  ? fmt(plo) + " – " + fmt(phi) + "/yr"    : "—",
+    total_savings:      fmt(D.savings) + "/yr",
+    client_email:       D.data.clientEmail || "—",
+    client_name:        D.data.clientName  || "—"
+  };
+
+  var params = {
+    service_id:      EMAILJS_SERVICE,
+    template_id:     EMAILJS_TEMPLATE,
+    user_id:         EMAILJS_KEY,
+    template_params: templateParams
+  };
+
+  fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify(params)
+  })
+  .then(function(res) {
+    if (!res.ok) res.text().then(function(t) { console.warn("EmailJS response:", res.status, t); });
+  })
+  .catch(function(err) {
+    console.warn("EmailJS send failed:", err.message);
+  });
+}
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+var BOOKING      = "https://calendly.com/sptresiliency/agent-spt-discovery";
+var WATER_RANGES = ["Under $1,000","$1,000 – $5,000","$5,000 – $10,000","$10,000+"];
+var BILL_RANGES  = ["Under $500","$500 – $2,000","$2,000 – $5,000","$5,000+"];
+var VALVE_SIZES  = ["1\"","2\"","3\"","4\"","6\"","8\"","10\"","12\"","Not sure"];
+var WATER_BOUNDS = {"Under $1,000":[0,1000],"$1,000 – $5,000":[1000,5000],"$5,000 – $10,000":[5000,10000],"$10,000+":[10000,1e9]};
+var WATER_EX     = {"Under $1,000":"$700 or $900","$1,000 – $5,000":"$2,800 or $4,200","$5,000 – $10,000":"$6,500 or $8,000","$10,000+":"$12,000 or $18,000"};
+var VALVE_COSTS  = {"1\"":2497,"2\"":7074,"3\"":16604,"4\"":19654,"6\"":31340,"8\"":38205,"10\"":54220,"12\"":62020};
+var BILL_MIDS    = {"Under $500":300,"$500 – $2,000":1250,"$2,000 – $5,000":3500,"$5,000+":6000};
+
+// ─── GAS DEREGULATION ─────────────────────────────────────────────────────────
+var GAS_DISQ = ["alabama","al","alaska","ak","arizona","az","arkansas","ar","colorado","co","hawaii","hi","idaho","id","iowa","ia","kansas","ks","kentucky","ky","louisiana","la","minnesota","mn","mississippi","ms","missouri","mo","nevada","nv","new mexico","nm","north carolina","nc","north dakota","nd","oklahoma","ok","oregon","or","south carolina","sc","south dakota","sd","tennessee","tn","texas","tx","utah","ut","vermont","vt","virginia","va","washington state","west virginia","wv","wisconsin","wi","wyoming","wy"];
+var GAS_MATRIX = {
+  // Ohio
+  "ohio":[ {n:["columbia gas of ohio","columbia gas"],ok:true},{n:["enbridge gas ohio","dominion east ohio","enbridge"],ok:true},{n:["duke energy ohio","duke energy"],ok:true},{n:["centerpoint energy ohio","vectren"],ok:true}],
+  "oh":[   {n:["columbia gas of ohio","columbia gas"],ok:true},{n:["enbridge gas ohio","dominion east ohio","enbridge"],ok:true},{n:["duke energy ohio","duke energy"],ok:true},{n:["centerpoint energy ohio","vectren"],ok:true}],
+  // Pennsylvania
+  "pennsylvania":[{n:["columbia gas of pennsylvania","columbia gas"],ok:true},{n:["peoples natural gas","peoples gas","peoples"],ok:true},{n:["national fuel gas","national fuel"],ok:true},{n:["peco energy","peco"],ok:true},{n:["philadelphia gas works","pgw"],ok:true},{n:["ugi"],ok:true}],
+  "pa":[          {n:["columbia gas of pennsylvania","columbia gas"],ok:true},{n:["peoples natural gas","peoples gas","peoples"],ok:true},{n:["national fuel gas","national fuel"],ok:true},{n:["peco energy","peco"],ok:true},{n:["philadelphia gas works","pgw"],ok:true},{n:["ugi"],ok:true}],
+  // New York
+  "new york":[{n:["con edison","consolidated edison"],ok:true},{n:["national grid"],ok:true},{n:["nyseg","new york state electric"],ok:true},{n:["rg&e","rge","rochester gas"],ok:true},{n:["central hudson"],ok:true},{n:["orange & rockland","orange and rockland"],ok:true}],
+  "ny":[      {n:["con edison","consolidated edison"],ok:true},{n:["national grid"],ok:true},{n:["nyseg","new york state electric"],ok:true},{n:["rg&e","rge","rochester gas"],ok:true},{n:["central hudson"],ok:true},{n:["orange & rockland","orange and rockland"],ok:true}],
+  // New Jersey
+  "new jersey":[{n:["new jersey natural gas","njng"],ok:true},{n:["pseg","public service electric","pse&g"],ok:true},{n:["south jersey gas","south jersey industries","sji"],ok:true},{n:["elizabethtown gas"],ok:true}],
+  "nj":[        {n:["new jersey natural gas","njng"],ok:true},{n:["pseg","public service electric","pse&g"],ok:true},{n:["south jersey gas","south jersey industries","sji"],ok:true},{n:["elizabethtown gas"],ok:true}],
+  // Illinois
+  "illinois":[{n:["nicor gas","nicor"],ok:true},{n:["peoples gas"],ok:true},{n:["north shore gas"],ok:true},{n:["ameren illinois","ameren"],ok:true},{n:["centerpoint energy illinois","centerpoint"],ok:true}],
+  "il":[      {n:["nicor gas","nicor"],ok:true},{n:["peoples gas"],ok:true},{n:["north shore gas"],ok:true},{n:["ameren illinois","ameren"],ok:true},{n:["centerpoint energy illinois","centerpoint"],ok:true}],
+  // Maryland
+  "maryland":[{n:["baltimore gas and electric","bge","baltimore gas & electric"],ok:true},{n:["washington gas light","washington gas","wgl"],ok:true},{n:["chesapeake utilities"],ok:true},{n:["columbia gas of maryland","columbia gas"],ok:true}],
+  "md":[      {n:["baltimore gas and electric","bge","baltimore gas & electric"],ok:true},{n:["washington gas light","washington gas","wgl"],ok:true},{n:["chesapeake utilities"],ok:true},{n:["columbia gas of maryland","columbia gas"],ok:true}],
+  // Massachusetts
+  "massachusetts":[{n:["eversource","nstar gas","columbia gas of ma","columbia gas"],ok:true},{n:["national grid","boston gas","colonial gas"],ok:true},{n:["berkshire gas"],ok:true},{n:["liberty utilities","unitil"],ok:true}],
+  "ma":[           {n:["eversource","nstar gas","columbia gas of ma","columbia gas"],ok:true},{n:["national grid","boston gas","colonial gas"],ok:true},{n:["berkshire gas"],ok:true},{n:["liberty utilities","unitil"],ok:true}],
+  // Georgia
+  "georgia":[{n:["atlanta gas light","agl"],ok:true}],
+  "ga":[     {n:["atlanta gas light","agl"],ok:true}],
+  // Rhode Island
+  "rhode island":[{n:["national grid rhode island","national grid"],ok:true},{n:["providence energy"],ok:true}],
+  "ri":[          {n:["national grid rhode island","national grid"],ok:true},{n:["providence energy"],ok:true}],
+  // Washington DC
+  "washington d.c.":[{n:["washington gas light","washington gas","wgl"],ok:true}],
+  "washington dc":[  {n:["washington gas light","washington gas","wgl"],ok:true}],
+  "dc":[             {n:["washington gas light","washington gas","wgl"],ok:true}],
+  // California
+  "california":[{n:["pacific gas & electric","pg&e","pge"],ok:true},{n:["southern california gas","socalgas","so cal gas"],ok:true},{n:["san diego gas & electric","sdg&e","sdge"],ok:true},{n:["southwest gas"],ok:true}],
+  "ca":[        {n:["pacific gas & electric","pg&e","pge"],ok:true},{n:["southern california gas","socalgas","so cal gas"],ok:true},{n:["san diego gas & electric","sdg&e","sdge"],ok:true},{n:["southwest gas"],ok:true}],
+  // Michigan
+  "michigan":[{n:["consumers energy","michcon"],ok:true},{n:["dte energy","michigan consolidated gas"],ok:true},{n:["michigan gas utilities"],ok:true},{n:["semco energy","semco"],ok:true}],
+  "mi":[      {n:["consumers energy","michcon"],ok:true},{n:["dte energy","michigan consolidated gas"],ok:true},{n:["michigan gas utilities"],ok:true},{n:["semco energy","semco"],ok:true}],
+  // Connecticut
+  "connecticut":[{n:["eversource","southern ct gas","ct natural gas","yankee gas"],ok:true},{n:["avangrid"],ok:true}],
+  "ct":[         {n:["eversource","southern ct gas","ct natural gas","yankee gas"],ok:true},{n:["avangrid"],ok:true}],
+  // Delaware
+  "delaware":[{n:["chesapeake utilities"],ok:true},{n:["delmarva power"],ok:true}],
+  "de":[      {n:["chesapeake utilities"],ok:true},{n:["delmarva power"],ok:true}],
+  // New Hampshire
+  "new hampshire":[{n:["liberty utilities","northern utilities"],ok:true},{n:["unitil"],ok:true}],
+  "nh":[           {n:["liberty utilities","northern utilities"],ok:true},{n:["unitil"],ok:true}],
+  // Maine
+  "maine":[{n:["unitil","northern utilities","granite state gas"],ok:true},{n:["summit natural gas","summit utilities"],ok:true}],
+  "me":[   {n:["unitil","northern utilities","granite state gas"],ok:true},{n:["summit natural gas","summit utilities"],ok:true}],
+  // Montana
+  "montana":[{n:["northwestern energy"],ok:true},{n:["energy west montana","energy west"],ok:true}],
+  "mt":[     {n:["northwestern energy"],ok:true},{n:["energy west montana","energy west"],ok:true}],
+  // Nebraska
+  "nebraska":[{n:["black hills energy nebraska","black hills energy","black hills"],ok:true},{n:["metropolitan utilities district","mud"],ok:false}],
+  "ne":[      {n:["black hills energy nebraska","black hills energy","black hills"],ok:true},{n:["metropolitan utilities district","mud"],ok:false}],
+  // Indiana
+  "indiana":[{n:["nipsco","northern indiana public service"],ok:true},{n:["centerpoint energy indiana","centerpoint"],ok:false},{n:["vectren"],ok:false}],
+  "in":[     {n:["nipsco","northern indiana public service"],ok:true},{n:["centerpoint energy indiana","centerpoint"],ok:false},{n:["vectren"],ok:false}],
+  // Florida
+  "florida":[{n:["chesapeake utilities"],ok:true},{n:["florida city gas"],ok:false},{n:["teco peoples gas","peoples gas"],ok:false},{n:["seacoast gas","seacoast utility"],ok:false}],
+  "fl":[     {n:["chesapeake utilities"],ok:true},{n:["florida city gas"],ok:false},{n:["teco peoples gas","peoples gas"],ok:false},{n:["seacoast gas","seacoast utility"],ok:false}]
+};
+function gasQualify(state, provider) {
+  if (!state) return {ok:false};
+  var sk = state.toLowerCase().trim();
+  // Remove common extra words people might type (e.g. "Massachusetts, USA")
+  var parts = sk.split(",");
+  sk = parts[0].trim();
+  for (var i=0;i<GAS_DISQ.length;i++) { if (sk.indexOf(GAS_DISQ[i])!==-1) return {ok:false}; }
+  var list = GAS_MATRIX[sk];
+  // State not in disqualified AND not in matrix — assume deregulated, let call confirm
+  if (!list) return {ok:true};
+  if (!provider) return {ok:true};
+  var pk = provider.toLowerCase().trim();
+  for (var j=0;j<list.length;j++) {
+    for (var k=0;k<list[j].n.length;k++) {
+      if (pk.indexOf(list[j].n[k])!==-1 || list[j].n[k].indexOf(pk)!==-1) return {ok:list[j].ok};
+    }
+  }
+  return {ok:true};
+}
+
+// ─── ELECTRIC DEREGULATION ────────────────────────────────────────────────────
+var ELEC_DISQ = ["alabama","alaska","arizona","arkansas","colorado","florida","georgia","hawaii","idaho","iowa","kansas","kentucky","louisiana","minnesota","mississippi","missouri","nevada","new mexico","north carolina","north dakota","oklahoma","oregon","south carolina","south dakota","tennessee","utah","vermont","virginia","washington state","west virginia","wisconsin","wyoming"];
+var ELEC_NONPART = {
+  "massachusetts":["ashburnham municipal","belmont municipal","taunton municipal","littleton electric","boylston municipal","braintree electric","chester municipal","chicopee municipal","concord municipal","danvers electric","georgetown municipal","gosnold electric","groton electric","groveland municipal","hingham municipal","holden municipal","holyoke gas","hudson light","hull municipal","ipswich municipal","middleborough gas","reading municipal","peabody mlp","mansfield municipal","marblehead municipal","merrimac municipal","middleton municipal","north attleborough electric","norwood municipal","paxton municipal","peabody municipal","princeton municipal","rowley municipal","russell municipal","shrewsbury electric","selco","south hadley electric","sterling municipal","templeton municipal","wakefield municipal","wellesley municipal","west boylston municipal","westfield gas"],
+  "texas":["austin energy","cps energy","el paso electric","bryan texas utilities","btu","denton municipal","georgetown utility","kerrville public utility","new braunfels utilities","lubbock power","san marcos electric","garland power","entergy texas","southwestern public service","swepco","pedernales electric","bluebonnet electric","sam houston electric"],
+  "ohio":["adams rural electric","buckeye rural electric","carroll electric","consolidated electric cooperative","firelands electric","frontier power","guernsey-muskingum electric","holmes-wayne electric","licking rural electric","lorain-medina rural electric","mid-ohio energy","monroe electric","north central electric","north western electric","paulding-putnam electric","pioneer rural electric","south central power","southwestern electric cooperative","union rural electric","wayne county electric"],
+  "pennsylvania":["adams electric cooperative","bedford rural electric","claverack rural electric","colonial electric cooperative","cumberland valley electric","huntingdon-indiana-mifflin electric","lawrence county electric","northwestern rural electric","pike electric cooperative","reliance electric cooperative","tri-county rural electric","valley rural electric","wellsboro electric"],
+  "new jersey":["rockaway borough","vineland city electric","lavallette electric","seaside heights electric","brigantine city electric","pemberton township electric"],
+  "connecticut":["norwich public utilities","npu","groton utilities","jewett city","bozrah light","woodstock electric"],
+  "maryland":["easton utilities","thurmont municipal","chestertown municipal"],
+  "new hampshire":["new hampshire electric cooperative","nhec"],
+  "new york":["long island power authority","lipa","pseg-li","pseg li","village of freeport electric","green island power","solvay electric","fairport electric"],
+  "delaware":["delaware electric cooperative","dec","milford electric","newark electric","dover electric"],
+  "illinois":["illinois municipal electric agency","imea","batavia public works","geneva electric","st. charles municipal","st charles municipal","naperville electric","rochelle municipal","rock falls electric","winnetka electric"],
+  "maine":["eastern maine electric cooperative","houlton water company","houlton water"],
+  "rhode island":["block island power"]
+};
+var ELEC_IOUS = {
+  "massachusetts":["eversource","national grid","unitil"],
+  "texas":["aep central","aep north","centerpoint","oncor","sharyland","texas new mexico power","tnmp"],
+  "ohio":["aep ohio","firstenergy","ohio edison","toledo edison","illuminating","duke energy ohio","dayton power & light","dp&l"],
+  "pennsylvania":["peco","ppl electric","west penn power","met-ed","penelec","firstenergy"],
+  "new jersey":["jcp&l","pseg","atlantic city electric","rockland electric"],
+  "connecticut":["eversource","united illuminating","ui"],
+  "maryland":["bge","pepco","delmarva power","potomac edison"],
+  "new hampshire":["eversource","liberty utilities","unitil"],
+  "new york":["con edison","national grid","nyseg","central hudson","orange & rockland","rg&e","rge"],
+  "delaware":["delmarva power"],
+  "illinois":["comed","ameren illinois","ameren"],
+  "maine":["central maine power","cmp","versant power","emera maine"],
+  "rhode island":["national grid"],
+  "michigan":["consumers energy","dte energy","dte"],
+  "california":["pg&e","pacific gas & electric","southern california edison","sce","san diego gas & electric","sdg&e"],
+  "washington d.c.":["pepco","washington gas"],
+  "washington dc":["pepco","washington gas"]
+};
+function elecQualify(state, provider) {
+  if (!state) return {ok:false};
+  var sk = state.toLowerCase().trim();
+  for (var i=0;i<ELEC_DISQ.length;i++) { if (sk.indexOf(ELEC_DISQ[i])!==-1) return {ok:false,why:"disqualified_state"}; }
+  var ious = ELEC_IOUS[sk];
+  if (!ious) return {ok:false,why:"state_not_deregulated"};
+  if (!provider) return {ok:true};
+  var pk = provider.toLowerCase().trim();
+  var np = ELEC_NONPART[sk]||[];
+  for (var j=0;j<np.length;j++) { if (pk.indexOf(np[j])!==-1||np[j].indexOf(pk)!==-1) return {ok:false,why:"non_participating"}; }
+  for (var k=0;k<ious.length;k++) { if (pk.indexOf(ious[k])!==-1||ious[k].indexOf(pk)!==-1) return {ok:true}; }
+  return {ok:"unknown"};
+}
+
+// ─── VALVE SIZING ─────────────────────────────────────────────────────────────
+function valveEmp(e){return e<20?"1\"":e<150?"2\"":e<350?"3\"":e<700?"4\"":e<1800?"6\"":e<4000?"8\"":"10\"";}
+function valveSqft(s){return s<5000?"1\"":s<15000?"2\"":s<30000?"3\"":s<50000?"4\"":s<100000?"6\"":"8\"";}
+
+// ─── APP STATE ────────────────────────────────────────────────────────────────
+var D = {flow:null, step:"", data:{}, done:[], savings:0};
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function getEl(id){return document.getElementById(id);}
+function fmt(n){return "$"+Math.round(n).toLocaleString();}
+function has(str,sub){return str.toLowerCase().indexOf(sub.toLowerCase())!==-1;}
+function isNo(str){
+  var lo = str.toLowerCase();
+  var n  = parseInt(str.replace(/[^0-9]/g,""));
+  return (!n) && (has(lo,"no ") || lo==="no" || has(lo,"none") || has(lo,"zero") || has(lo,"not sure") || has(lo,"don't know") || has(lo,"dont know") || has(lo,"unsure"));
+}
+function addMsg(who, html, opts) {
+  var msgs = getEl("messages");
+  var wrap = document.createElement("div");
+  wrap.className = "chat-message flex " + (who === "bot" ? "justify-start" : "justify-end");
+  if (who === "bot") {
+    var inner = document.createElement("div");
+    inner.className = "flex gap-x-3 max-w-[82%]";
+    var av = document.createElement("div");
+    av.className = "agent-avatar flex-shrink-0 rounded-2xl mt-1";
+    av.textContent = "SPT";
+    var col = document.createElement("div");
+    var bub = document.createElement("div");
+    bub.className = "agent-bubble message-bubble text-sm shadow-sm";
+    bub.innerHTML = html;
+    col.appendChild(bub);
+    if (opts) {
+      var grid = document.createElement("div");
+      grid.className = "flex flex-wrap gap-2 mt-3";
+      opts.forEach(function(o){
+        var btn = document.createElement("button");
+        btn.className = "option-btn px-4 py-2 text-sm font-medium bg-white border border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 rounded-3xl transition-all text-slate-700";
+        btn.textContent = o;
+        btn.onclick = function(){
+          grid.querySelectorAll("button").forEach(function(b){ b.disabled = true; b.style.opacity = "0.5"; });
+          btn.style.opacity = "1"; btn.classList.add("border-emerald-400","bg-emerald-50");
+          addMsg("user", o); setTimeout(function(){ route(o); }, 400);
+        };
+        grid.appendChild(btn);
+      });
+      col.appendChild(grid);
+    }
+    inner.appendChild(av); inner.appendChild(col); wrap.appendChild(inner);
+  } else {
+    var u = document.createElement("div"); u.className = "max-w-[75%]";
+    var ub = document.createElement("div"); ub.className = "user-bubble message-bubble text-sm shadow-sm"; ub.innerHTML = html;
+    u.appendChild(ub); wrap.appendChild(u);
+    readGateUntil = 0; // user has moved on; don't hold the bot's reply behind the prior reading window
+  }
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+  updateDashboard();
+}
+function showTyping(){
+  var msgs = getEl("messages");
+  var wrap = document.createElement("div");
+  wrap.className = "chat-message flex justify-start"; wrap.id = "typing-indicator";
+  wrap.innerHTML = '<div class="flex gap-x-3"><div class="agent-avatar flex-shrink-0 rounded-2xl mt-1">SPT</div><div class="agent-bubble message-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>';
+  msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;
+}
+function rmTyping(){var t=getEl("typing-indicator");if(t)t.remove();}
+
+// ─── READING-PACED MESSAGE QUEUE ─────────────────────────────────────────────
+// Bubbles are released no faster than an average person can read the previous
+// one, so a new bubble never pops up before the last one has been read.
+var READ_WPM = 220;                  // avg adult silent-reading speed (words/min)
+var msgQueue = [];                   // pending bot bubbles, in order
+var queueBusy = false;               // a bubble is currently animating in
+var readGateUntil = 0;               // timestamp until which the reader is still reading the last bubble
+function readingTime(html){
+  var txt = String(html).replace(/<[^>]*>/g," ").replace(/&[a-z]+;/gi," ").replace(/\s+/g," ").trim();
+  var words = txt ? txt.split(" ").length : 0;
+  var ms = 500 + (words / READ_WPM) * 60000;  // small base + per-word reading time
+  return Math.max(1200, Math.min(ms, 8000));  // floor so short bubbles still linger; cap so long ones don't stall
+}
+function processQueue(){
+  if(queueBusy) return;
+  var item = msgQueue.shift();
+  if(!item) return;
+  queueBusy = true;
+  var readWait = Math.max(0, readGateUntil - Date.now()); // time still needed to read the previous bubble
+  var typeMs   = item.typing;                             // how long to show the typing indicator
+  var preWait  = Math.max(0, readWait - typeMs);          // hold silently, then run the typing animation
+  setTimeout(function(){
+    showTyping();
+    setTimeout(function(){
+      rmTyping();
+      addMsg("bot", item.html, item.opts);
+      speakText(item.html);
+      readGateUntil = Date.now() + readingTime(item.html);
+      queueBusy = false;
+      processQueue();
+    }, typeMs);
+  }, preWait);
+}
+// ─── GROK TTS (ara voice) ────────────────────────────────────────────────────
+var ttsQueue      = [];
+var ttsBusy       = false;
+var currentAudio  = null;
+
+function stripHtml(html){
+  return html
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")
+    .replace(/&nbsp;/g," ").replace(/&#39;/g,"'").replace(/&quot;/g,'"')
+    .replace(/💧|⚡|👥|💰|🚀|💥|🔥|🌿|🔌|📄/g, "")
+    .replace(/\s+/g," ").trim();
+}
+
+function processTtsQueue(){
+  if(ttsBusy || ttsQueue.length===0) return;
+  ttsBusy = true;
+  var text = ttsQueue.shift();
+  if(!text || text.length < 2){ ttsBusy=false; processTtsQueue(); return; }
+  fetch("/.netlify/functions/tts", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({text: text})
+  })
+  .then(function(res){
+    if(!res.ok) throw new Error("TTS fetch failed: "+res.status);
+    return res.blob();
+  })
+  .then(function(blob){
+    var url = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = function(){
+      URL.revokeObjectURL(url);
+      currentAudio = null;
+      ttsBusy = false;
+      processTtsQueue();
+    };
+    currentAudio.onerror = function(){
+      currentAudio = null;
+      ttsBusy = false;
+      processTtsQueue();
+    };
+    currentAudio.play().catch(function(){ ttsBusy=false; processTtsQueue(); });
+  })
+  .catch(function(err){
+    console.warn("TTS error:", err.message);
+    ttsBusy = false;
+    processTtsQueue();
+  });
+}
+
+function speakText(html){
+  if(!voiceEnabled) return;
+  var text = stripHtml(html);
+  if(!text) return;
+  ttsQueue.push(text);
+  processTtsQueue();
+}
+
+function stopTts(){
+  ttsQueue = [];
+  if(currentAudio){ currentAudio.pause(); currentAudio=null; }
+  ttsBusy = false;
+}
+
+function say(html,opts,delay){
+  if(delay===undefined) delay=800;
+  msgQueue.push({html:html, opts:opts, typing:delay});
+  processQueue();
+}
+function goStep(step, fn, delay){
+  D.step = step;
+  if(delay) setTimeout(fn, delay);
+  else fn();
+}
+function sendMessage(){
+  var el=getEl("userInput"); var txt=el.value.trim(); if(!txt)return;
+  el.value=""; el.style.height="auto";
+  addMsg("user",txt); setTimeout(function(){route(txt);},400);
+}
+function handleKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function autoResize(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,120)+"px";}
+function restartChat(){
+  D={flow:null,step:"",data:{},done:[],savings:0};
+  stopTts();
+  msgQueue=[]; queueBusy=false; readGateUntil=0; rmTyping();
+  getEl("messages").innerHTML=""; getEl("userInput").value=""; getEl("userInput").style.height="auto";
+  updateDashboard();
+  setTimeout(openingMsg,300);
+}
+function bookingBtn(){
+  var lbl=D.savings>0?"💰 Get Your "+fmt(D.savings)+" Savings Plan":"📅 Get Your Savings Plan";
+  return '<a class="booking-link" href="'+BOOKING+'" target="_blank">'+lbl+'</a>';
+}
+function markDone(f){if(D.done.indexOf(f)===-1) D.done.push(f);}
+
+// ─── LIVE SAVINGS DASHBOARD (sidebar) ────────────────────────────────────────
+function updateDashboard(){
+  var totalEl = getEl("total-savings");
+  if (totalEl) totalEl.textContent = fmt(D.savings || 0);
+  var bd = getEl("savings-breakdown");
+  if (!bd) return;
+  var items = [];
+  if (D.data.waterBill)        items.push(["💧","Water", Math.round(D.data.waterBill*0.20*12)]);
+  if (D.data.elecDeregSavings) items.push(["⚡","Electric Supply", D.data.elecDeregSavings]);
+  if (D.data.kwSavings)        items.push(["🔌","Panel Energy", D.data.kwSavings]);
+  if (D.data.gasSavings)       items.push(["🔥","Natural Gas", D.data.gasSavings]);
+  if (D.data.aqSavings)        items.push(["🌿","Air Quality", D.data.aqSavings]);
+  if (D.data.fullTime || D.data.employees){
+    var ec  = D.data.fullTime || D.data.employees;
+    if (ec>=8){
+      var plo = ec*600;
+      var phi = ec*900;
+      items.push(["👥","Payroll & Benefits", Math.round((plo+phi)/2)]);
+    }
+  }
+  var html = '<div class="text-xs section-header text-slate-500 px-1">BREAKDOWN</div>';
+  if (items.length === 0){
+    html += '<div class="text-xs text-slate-400 px-1">No areas explored yet. Start a conversation!</div>';
+  } else {
+    items.forEach(function(it){
+      html += '<div class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-2xl text-sm">'
+        + '<div class="flex items-center gap-x-2"><span class="text-lg">'+it[0]+'</span><span class="font-medium">'+it[1]+'</span></div>'
+        + '<div class="font-semibold text-emerald-700 savings-number">'+fmt(it[2])+'/yr</div></div>';
+    });
+  }
+  bd.innerHTML = html;
+}
+function syncNavVoice(){
+  var b = getEl("voice-btn"), ic = getEl("voice-icon"), tx = getEl("voice-text");
+  if (!b) return;
+  if (voiceEnabled){
+    b.classList.add("!bg-emerald-100","!text-emerald-700");
+    if (ic) ic.className = "fa-solid fa-microphone mr-1.5";
+    if (tx) tx.textContent = "Voice On";
+  } else {
+    b.classList.remove("!bg-emerald-100","!text-emerald-700");
+    if (ic) ic.className = "fa-solid fa-microphone-slash mr-1.5";
+    if (tx) tx.textContent = "Voice Off";
+  }
+}
+
+// ─── ROUTING ──────────────────────────────────────────────────────────────────
+function route(input){
+  var lo=input.toLowerCase();
+  if(!D.flow){
+    if(has(lo,"water"))                                                          {D.flow="water";   goStep("w_state",   waterAsk);}
+    else if(has(lo,"electric")||has(lo,"gas")||has(lo,"energy")||has(lo,"utility")){D.flow="electric"; goStep("e_state",   elecAsk);}
+    else if(has(lo,"payroll")||has(lo,"employee")||has(lo,"staff")||has(lo,"hr")){D.flow="payroll";  goStep("p_count",   payrollAsk);}
+    else if(has(lo,"save money")||has(lo,"all"))                                 {say("Perfect — let's hit all three. Where's the biggest pain right now?",["High Water Bill 💧","Electric / Gas Spikes ⚡","Payroll / Benefits 👥"]);}
+    else say("No sweat — let's find your biggest win. Which area are you spending the most on?",["High Water Bill 💧","Electric / Gas Spikes ⚡","Payroll / Benefits 👥","All of the above"]);
+    return;
+  }
+  if(D.flow==="water")         waterHandle(input);
+  else if(D.flow==="electric") elecHandle(input);
+  else if(D.flow==="payroll")  payrollHandle(input);
+  else if(D.flow==="upsell")   upsellHandle(input);
+  else if(D.flow==="company")  companyHandle(input);
+  else if(D.flow==="client")   clientHandle(input);
+}
+
+// ─── UPSELL ───────────────────────────────────────────────────────────────────
+function upsellOpts(){
+  var all=[{l:"High Water Bill 💧",k:"water"},{l:"Electric / Gas Spikes ⚡",k:"electric"},{l:"Payroll / Benefits 👥",k:"payroll"}];
+  var rem=all.filter(function(o){return D.done.indexOf(o.k)===-1;}).map(function(o){return o.l;});
+  rem.push(D.savings>0?"Unlock my "+fmt(D.savings)+" — Let's Talk 🚀":"Let's Talk 🚀");
+  return rem;
+}
+function showUpsell(){
+  var opts=upsellOpts();
+  if(opts.length===1){
+    // All flows done — ask for company name before booking
+    D.flow="company";
+    say("Before we wrap up — what's the name of your company?");
+    return;
+  }
+  D.flow="upsell";
+  say("By the way, are there other bills you'd like to see if we can reduce?",opts);
+}
+
+function companyHandle(input){
+  D.data.companyName = input.trim();
+  say("Thanks, "+D.data.companyName+"! Let me put your savings summary together...",null,400);
+  setTimeout(function(){
+    var summaryLines = [];
+    summaryLines.push("<strong>Company:</strong> "+D.data.companyName);
+    if(D.data.electricState) summaryLines.push("<strong>State:</strong> "+D.data.electricState);
+    if(D.data.elecDeregSavings) summaryLines.push("<strong>Electric Supply Savings:</strong> "+fmt(D.data.elecDeregSavings)+"/yr");
+    if(D.data.kwSavings)        summaryLines.push("<strong>Panel Energy Savings:</strong> "+fmt(D.data.kwSavings)+"/yr");
+    if(D.data.gasSavings)       summaryLines.push("<strong>Natural Gas Savings:</strong> "+fmt(D.data.gasSavings)+"/yr");
+    if(D.data.aqSavings)        summaryLines.push("<strong>Air Quality / Energy Savings:</strong> "+fmt(D.data.aqSavings)+"/yr");
+    if(D.data.waterBill)        summaryLines.push("<strong>Water Savings:</strong> "+fmt(Math.round(D.data.waterBill*0.20*12))+"/yr");
+    if(D.data.fullTime||D.data.employees){
+      var ec=D.data.fullTime||D.data.employees;
+      if(ec>=8){
+        var plo=ec*600;
+        var phi=ec*900;
+        summaryLines.push("<strong>Payroll & Benefits Savings:</strong> "+fmt(plo)+"–"+fmt(phi)+"/yr");
+      }
+    }
+    summaryLines.push("<strong>Total Estimated Savings:</strong> "+fmt(D.savings)+"/yr");
+    say("Here's your savings summary for <strong>"+D.data.companyName+"</strong>:<br><br>"+summaryLines.join("<br>")+"<br><br>Click below to schedule your discovery call — we'll have everything ready to review with you.<br><br>"+bookingBtn());
+    setTimeout(function(){
+      say("One last thing — what's the best email address to send your savings summary to?",null,1000);
+      D.flow="client"; D.step="c_email";
+    },1200);
+  },1600);
+}
+function upsellHandle(input){
+  var lo=input.toLowerCase();
+  if(has(lo,"talk")||has(lo,"unlock")||has(lo,"no thanks")){
+    D.flow="company";
+    say("Before we wrap up — what's the name of your company?");
+    return;
+  }
+  if(has(lo,"water"))                                          {D.flow="water";   goStep("w_state",  waterAsk);}
+  else if(has(lo,"electric")||has(lo,"gas")||has(lo,"energy")){D.flow="electric"; goStep("e_state",  elecAsk);}
+  else if(has(lo,"payroll")||has(lo,"employee"))               {D.flow="payroll";  goStep("p_count",  payrollAsk);}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WATER FLOW
+// ═══════════════════════════════════════════════════════════════════════════════
+function waterAsk(){
+  var s=D.step;
+  if     (s==="w_state")   say("What's your monthly water bill — a ballpark estimate is fine?", WATER_RANGES);
+  else if(s==="w_precise") say("Great, thank you. Can you estimate it to the closest hundred or thousand? For example, "+(WATER_EX[D.data.waterRange]||"$7,500")+"?");
+  else if(s==="w_main")    say("Do you know the size of your water main? It's typically listed on your meter or your bill.", VALVE_SIZES);
+  else if(s==="w_facility")say("What's the approximate size of your facility? You can share square footage, number of employees, or how many people you serve.");
+}
+function waterHandle(input){
+  var lo=input.toLowerCase(); var s=D.step;
+
+  if(s==="w_state"){
+    D.data.waterRange=input; goStep("w_precise", waterAsk);
+
+  } else if(s==="w_precise"){
+    var n=parseFloat(input.replace(/[^0-9.]/g,""));
+    if(!n||n<100){say("Just ballpark it — something like $3,000 or $7,500 works fine.");return;}
+    var bounds=WATER_BOUNDS[D.data.waterRange];
+    if(bounds&&(n<bounds[0]||n>=bounds[1])&&!D.data.waterBillOk){
+      D.data.pendingBill=n;
+      say("Just to confirm — <span class=\"highlight\">"+fmt(n)+"</span> is outside the range you selected (<strong>"+D.data.waterRange+"</strong>). Are you sure that's correct?",["Yes, that's correct","Let me re-enter"]);
+      D.step="w_confirm"; return;
+    }
+    D.data.waterBill=n; D.data.waterBillOk=false;
+    waterShowSavings();
+
+  } else if(s==="w_confirm"){
+    if(has(lo,"yes")||has(lo,"correct")||has(lo,"sure")){D.data.waterBill=D.data.pendingBill;D.data.waterBillOk=true;waterShowSavings();}
+    else{D.data.waterBillOk=false;D.data.pendingBill=null;say("No problem — what's your estimated monthly water bill?");D.step="w_precise";}
+
+  } else if(s==="w_main"){
+    if(isNo(lo)||has(lo,"not sure")||has(lo,"unsure")){
+      if(D.data.employees){
+        var vs=valveEmp(D.data.employees); D.data.valveSize=vs;
+        say("No sweat — using the "+D.data.employees+" employees you mentioned, estimating a <span class=\"highlight\">"+vs+"</span> main.");
+        goStep("w_payback", waterPayback, 1200);
+      } else { goStep("w_facility", waterAsk); }
+    } else {
+      var sizes=["12\"","10\"","8\"","6\"","4\"","3\"","2\"","1\""];
+      var matched=null;
+      for(var i=0;i<sizes.length;i++){if(input.indexOf(sizes[i].replace("\"",""))!==-1){matched=sizes[i];break;}}
+      D.data.valveSize=matched||"2\"";
+      goStep("w_payback", waterPayback);
+    }
+
+  } else if(s==="w_facility"){
+    var num=parseInt(input.replace(/[^0-9]/g,""));
+    if(!num){say("Just a rough number — like 45 employees or 12,000 square feet.");return;}
+    var sqft=has(lo,"sq")||has(lo,"foot")||has(lo,"feet")||has(lo,"ft")||num>5000;
+    if(sqft){D.data.valveSize=valveSqft(num);say("Based on approximately "+num.toLocaleString()+" sq ft, estimating a <span class=\"highlight\">"+D.data.valveSize+"</span> main.");}
+    else    {D.data.employees=num;D.data.valveSize=valveEmp(num);say("Based on approximately "+num+" employees, estimating a <span class=\"highlight\">"+D.data.valveSize+"</span> main.");}
+    goStep("w_payback", waterPayback, 1200);
+  }
+}
+function waterShowSavings(){
+  var bill=D.data.waterBill; var mo=bill*0.20; var yr=mo*12;
+  say("Hang tight — crunching your numbers...",null,400);
+  setTimeout(function(){
+    say("Based on your estimated <span class=\"highlight\">"+fmt(bill)+"/mo</span> bill, we can typically save you around <span class=\"highlight\">"+fmt(mo)+"/month</span>, or roughly <span class=\"highlight\">"+fmt(yr)+"/year</span>. 💥");
+    goStep("w_main", waterAsk, 900);
+  },1600);
+}
+function waterPayback(){
+  var ic=VALVE_COSTS[D.data.valveSize]||VALVE_COSTS["2\""]; var ms=D.data.waterBill*0.20; var pb=Math.round(ic/ms);
+  var vd=pb<=12?"<strong>Wow — this is a no-brainer.</strong> Pays back in under one year. 🚀":pb<=24?"<strong>Boom! Grand slam.</strong> Pays back in under two years. 🎯":pb<=36?"<strong>Solid!</strong> Payback in under 3 years. Let's do a full analysis.":"<strong>Stretchy</strong> — might be worth it bundled with other savings.";
+  say("Hang tight — crunching your numbers...",null,400);
+  setTimeout(function(){
+    say("Install runs <span class=\"highlight\">"+fmt(ic)+"</span> for a <strong>"+D.data.valveSize+"</strong> main. At <span class=\"highlight\">"+fmt(ms)+"/mo</span> savings, you're looking at a <span class=\"highlight\">"+pb+"-month payback</span>.<br><br>"+vd+"<br><br>Completely financed — <strong>zero out of pocket upfront.</strong> After month "+pb+", it's pure profit.");
+    markDone("water");
+    var wa=Math.round(D.data.waterBill*0.20*12); D.savings+=wa;
+    say("Excellent — we've got what we need on water. 💧<br><br>We're now up to an estimated <span class=\"highlight\">"+fmt(D.savings)+"/year</span> in total savings!",null,1400);
+    setTimeout(showUpsell,3200);
+  },1600);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ELECTRIC FLOW
+// ═══════════════════════════════════════════════════════════════════════════════
+/*
+  EXACT SEQUENCE:
+  1. e_state    → What state?
+  2. e_bill     → Monthly electric bill?
+  3. e_provider → Who is your provider?
+                  → elecQualify()
+                  → IF deregulated: "crunching..." → show 12.5% savings → e_kw
+                  → IF NOT deregulated: → e_kw (no dereg savings)
+  4. e_kw       → How many sub panels?
+                  → IF number: calc kw savings/payback → show → e_gas_state_check
+                  → IF no: "we'll cover on call" → e_gas_state_check
+  5. e_gas_state_check (internal, no user input)
+                  → IF state supports gas: say "Would you like to explore Natural Gas savings?" → e_gas_offer
+                  → IF not: → e_aq
+  6. e_gas_offer → Yes/No
+                  → Yes → e_gas_provider
+                  → No  → e_aq
+  7. e_gas_provider → Who is your Natural Gas provider?
+                  → gasQualify()
+                  → IF qualified: → e_gas_bill
+                  → IF not: → e_aq
+  8. e_gas_bill  → Monthly gas bill?
+                  → IF number: calc 12% → show → e_aq
+                  → IF unknown: → e_gas_range
+  9. e_gas_range → range picker → calc 12% → show → e_aq
+  10. e_aq       → Air quality + 15% energy savings? Yes/No → e_done
+  11. e_done     → sum all savings → show total → upsell
+*/
+
+// Ask functions (display only, no logic)
+function elecAsk(){
+  var s=D.step;
+  if     (s==="e_state")    say("What state are you in?");
+  else if(s==="e_bill")     say("Do you know about how much you pay in electric every month?");
+  else if(s==="e_provider") say("Who is your electricity provider?");
+  else if(s==="e_kw")       say("How many electrical panels do you have at your facility?");
+  else if(s==="e_gas_offer"){
+    var gq2 = gasQualify(D.data.electricState, null);
+    say("Would you like to explore Natural Gas savings in your area as well?",["Yes, let's do it","No thanks"]);
+  }
+  else if(s==="e_gas_prov") say("Who is your Natural Gas provider?");
+  else if(s==="e_gas_bill") say("About how much do you pay each month for Natural Gas?");
+  else if(s==="e_gas_range")say("No problem — what's the closest range?", BILL_RANGES);
+  else if(s==="e_aq")       say("Would you also be interested in improving your air quality while reducing your energy costs by an additional 15%?",["Yes, interested","No thanks"]);
+}
+
+// Internal step: check gas state qualification, no user input needed
+function elecGasStateCheck(){
+  var gq = gasQualify(D.data.electricState, null);
+  if(gq.ok === true){
+    D.step = "e_gas_offer";
+    say("Would you like to explore Natural Gas savings in your area as well?", ["Yes, let's do it","No thanks"], 800);
+  } else {
+    goStep("e_aq", elecAsk, 800);
+  }
+}
+
+// Internal step: show electric deregulation savings, then go to sub panels
+function elecDeregCrunch(){
+  var mo = Math.round((D.data.electricBill||0)*0.125);
+  var yr = mo*12;
+  D.data.elecDeregSavings = yr;
+  say("Hang tight — crunching your numbers...", null, 400);
+  setTimeout(function(){
+    say("Great news — based on your state and provider, you qualify for competitive electric supply savings. We can typically reduce your bill by around <span class=\"highlight\">12.5%</span> — roughly <span class=\"highlight\">"+fmt(mo)+"/month</span> or <span class=\"highlight\">"+fmt(yr)+"/year</span>. ⚡");
+    goStep("e_kw", elecAsk, 1200);
+  }, 1600);
+}
+
+// Internal step: sum all electric savings and wrap up
+function elecDone(){
+  markDone("electric");
+  var total=0;
+  if(D.data.elecDeregSavings) total+=D.data.elecDeregSavings;
+  if(D.data.kwSavings)        total+=D.data.kwSavings;
+  if(D.data.gasSavings)       total+=D.data.gasSavings;
+  if(D.data.aqSavings)        total+=D.data.aqSavings;
+  D.savings+=total;
+  say("Excellent — we've got what we need on electric & energy. ⚡<br><br>We're now up to an estimated <span class=\"highlight\">"+fmt(D.savings)+"/year</span> in total savings!");
+  setTimeout(showUpsell,1200);
+}
+
+// Handle user input for electric flow
+function elecHandle(input){
+  var lo=input.toLowerCase(); var s=D.step;
+
+  // STEP 1: State
+  if(s==="e_state"){
+    D.data.electricState=input;
+    goStep("e_bill", elecAsk);
+
+  // STEP 2: Bill
+  } else if(s==="e_bill"){
+    var n=parseFloat(input.replace(/[^0-9.]/g,""));
+    if(!n||n<1){say("Just a ballpark is fine — something like $3,000 or $8,500.");return;}
+    D.data.electricBill=n;
+    goStep("e_provider", elecAsk);
+
+  // STEP 3: Provider → qualify → branch
+  } else if(s==="e_provider"){
+    D.data.electricProvider=input;
+    var eq=elecQualify(D.data.electricState, D.data.electricProvider);
+    if(eq.ok===false){
+      // NOT deregulated: skip dereg savings, go straight to sub panels
+      D.data.elecDeregSavings=0;
+      goStep("e_kw", elecAsk);
+    } else {
+      // DEREGULATED: crunch numbers, show savings, then sub panels
+      if(eq.ok==="unknown") say("We're not immediately familiar with "+D.data.electricProvider+" — we'll verify eligibility on our call. Let's keep going.");
+      elecDeregCrunch();
+    }
+
+  // STEP 4: Sub panels (KW Saver — never named)
+  } else if(s==="e_kw"){
+    var spNum=parseInt(input.replace(/[^0-9]/g,""));
+    if(isNo(lo) && !spNum){
+      D.data.kwSavings   = 0;
+      D.data.totalPanels = 1;
+      say("No problem — we'll cover that when we meet to go over your report.");
+      elecGasStateCheck();
+    } else {
+      var panels     = spNum||1;
+      var subs       = panels - 1;
+      var panelLabel = panels===1
+                       ? "1 main panel"
+                       : "1 main panel and "+subs+" sub panel"+(subs===1?"":"s");
+      var kwCost     = panels*3145;
+      var kwMo       = Math.round((D.data.electricBill||0)*0.125);
+      var kwYr       = kwMo*12;
+      var kwPb       = kwMo>0 ? Math.round(kwCost/kwMo) : 0;
+      var kwV        = kwPb<=24
+                       ? "Excellent news — your payback is only <span class=\"highlight\">"+kwPb+" months</span>!"
+                       : kwPb<=36
+                       ? "Solid savings with payback in less than 3 years!"
+                       : "Stretchy — let's see the solutions we can combine to optimize your savings.";
+      D.data.totalPanels = panels;
+      D.data.kwSavings   = kwYr;
+      say("Hang tight — crunching your numbers...",null,400);
+      setTimeout(function(){
+        say("With <strong>"+panelLabel+"</strong>, the install runs <span class=\"highlight\">"+fmt(kwCost)+"</span>. At <span class=\"highlight\">"+fmt(kwMo)+"/month</span> in savings (avg 12.5%), you're looking at a <span class=\"highlight\">"+kwPb+"-month payback</span>.<br><br>"+kwV+"<br><br>Completely financed — <strong>zero out of pocket upfront.</strong>");
+        elecGasStateCheck();
+      },1600);
+    }
+
+  // STEP 5: Gas offer (Yes/No)
+  } else if(s==="e_gas_offer"){
+    if(has(lo,"yes")||has(lo,"do it")){
+      goStep("e_gas_prov", elecAsk);
+    } else {
+      D.data.gasSavings=0;
+      goStep("e_aq", elecAsk);
+    }
+
+  // STEP 6: Gas provider → qualify
+  } else if(s==="e_gas_prov"){
+    D.data.gasProvider=input;
+    var pq=gasQualify(D.data.electricState, D.data.gasProvider);
+    if(pq.ok===true){
+      goStep("e_gas_bill", elecAsk);
+    } else {
+      D.data.gasSavings=0;
+      goStep("e_aq", elecAsk);
+    }
+
+  // STEP 7: Gas bill (typed number)
+  } else if(s==="e_gas_bill"){
+    var gn=parseFloat(input.replace(/[^0-9.]/g,""));
+    if(!gn){
+      goStep("e_gas_range", elecAsk); return;
+    }
+    D.data.gasBill=gn;
+    var gsm=Math.round(gn*0.12); var gyr=gsm*12; D.data.gasSavings=gyr;
+    say("Since you're in <strong>"+D.data.electricState+"</strong> with <strong>"+D.data.gasProvider+"</strong>, we can typically save around <span class=\"highlight\">12%</span> on your Natural Gas bill — roughly <span class=\"highlight\">"+fmt(gsm)+"/month</span> or <span class=\"highlight\">"+fmt(gyr)+"/year</span>. 🔥");
+    goStep("e_aq", elecAsk, 1200);
+
+  // STEP 8: Gas bill range picker
+  } else if(s==="e_gas_range"){
+    var mid=BILL_MIDS[input]||1250; D.data.gasBill=mid;
+    var gs=Math.round(mid*0.12); var gy=gs*12; D.data.gasSavings=gy;
+    say("Since you're in <strong>"+D.data.electricState+"</strong> with <strong>"+D.data.gasProvider+"</strong>, we can typically save around <span class=\"highlight\">12%</span> on your Natural Gas bill — roughly <span class=\"highlight\">"+fmt(gs)+"/month</span> or <span class=\"highlight\">"+fmt(gy)+"/year</span>. 🔥");
+    goStep("e_aq", elecAsk, 1200);
+
+  // STEP 9: Air quality
+  } else if(s==="e_aq"){
+    if(has(lo,"yes")||has(lo,"interested")){
+      var aqMo=Math.round((D.data.electricBill||0)*0.15);
+      var aqYr=aqMo*12; D.data.aqSavings=aqYr;
+      say("Excellent — an additional <span class=\"highlight\">"+fmt(aqMo)+"/month</span> or <span class=\"highlight\">"+fmt(aqYr)+"/year</span> in savings while improving your air quality. 🌿");
+      setTimeout(elecDone,1200);
+    } else {
+      D.data.aqSavings=0;
+      elecDone();
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PAYROLL FLOW
+// ═══════════════════════════════════════════════════════════════════════════════
+function payrollAsk(){
+  var s=D.step;
+  if(s==="p_count"){
+    if(D.data.employees){ say("Of the "+D.data.employees+" employees you mentioned earlier, how many are full-time?"); D.step="p_fulltime"; }
+    else say("How many full-time employees do you have?");
+  }
+  else if(s==="p_fulltime") say("Of those, how many are full-time?");
+}
+function payrollHandle(input){
+  var s=D.step;
+  if(s==="p_count"){
+    if(D.data.employees){D.step="p_fulltime";payrollAsk();return;}
+    var c=parseInt(input.replace(/[^0-9]/g,""));
+    if(!c){say("Just a rough number is fine — like 12 or 50.");return;}
+    D.data.employees=c; D.data.fullTime=c;
+    payrollCrunch();
+  } else if(s==="p_fulltime"){
+    var ft=parseInt(input.replace(/[^0-9]/g,""));
+    if(!ft){say("Just a number is fine — how many are full-time?");return;}
+    D.data.fullTime=ft;
+    say("Got it — "+ft+" full-time. Let me crunch your payroll savings.");
+    setTimeout(payrollCrunch,1000);
+  }
+}
+function payrollCrunch(){
+  var count=D.data.fullTime||D.data.employees;
+  if(count<8){
+    say("We'll cover payroll and benefits savings when we meet to go over your report. You'll get the full picture in one sitting.");
+    markDone("payroll"); setTimeout(showUpsell,1000); return;
+  }
+  say("Hang tight — crunching your numbers...",null,400);
+  setTimeout(function(){
+    var perEmpLo=600, perEmpHi=900;
+    var plo=count*perEmpLo, phi=count*perEmpHi;
+    // Per-employee message
+    var perEmpMsg = perEmpLo===perEmpHi
+      ? "Based on your <strong>"+count+" full-time employees</strong>, you could save an estimated <span class=\"highlight\">"+fmt(perEmpLo)+" per employee</span> per year on payroll and benefits."
+      : "Based on your <strong>"+count+" full-time employees</strong>, you could save an estimated <span class=\"highlight\">"+fmt(perEmpLo)+"–"+fmt(perEmpHi)+" per employee</span> per year on payroll and benefits.";
+    say(perEmpMsg);
+    setTimeout(function(){
+      markDone("payroll");
+      var pmid=Math.round((plo+phi)/2); D.savings+=pmid;
+      var tlo=fmt(D.savings-Math.round((phi-plo)/2)); var thi=fmt(D.savings+Math.round((phi-plo)/2));
+      say("Excellent — we've got what we need on payroll & benefits. 👥<br><br>When we add it all up, your total estimated savings could be as high as <span class=\"highlight\">"+tlo+" – "+thi+" per year!</span> 🚀");
+      setTimeout(showUpsell,1400);
+    },1600);
+  },1600);
+}
+
+function clientHandle(input){
+  if(D.step === "c_email"){
+    D.data.clientEmail = input.trim();
+    say("Got it! And what's your name?",null,600);
+    D.step = "c_name";
+  } else if(D.step === "c_name"){
+    D.data.clientName = input.trim();
+    sendSummaryEmail();
+    say("Perfect, "+D.data.clientName+"! We'll be in touch at <strong>"+D.data.clientEmail+"</strong> with your full savings summary. In the meantime, grab a spot on the calendar to the right — we'll have everything ready to review with you. 🚀");
+  }
+}
+
+
+// ─── VOICE INPUT ──────────────────────────────────────────────────────────────
+var recognition   = null;
+var isListening   = false;
+var voiceEnabled  = false;
+var restartTimer  = null;
+var micRestartMs  = 1000;
+
+function initVoice() {
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    var btn = document.getElementById("micBtn");
+    if (btn) btn.classList.add("unsupported");
+    return;
+  }
+  recognition = new SpeechRec();
+  recognition.continuous     = false;
+  recognition.interimResults = true;
+  recognition.lang           = "en-US";
+
+  recognition.onstart = function() {
+    isListening = true;
+    document.getElementById("micBtn").classList.add("listening");
+    document.getElementById("userInput").placeholder = "Listening...";
+  };
+
+  recognition.onresult = function(e) {
+    var transcript = "";
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    document.getElementById("userInput").value = transcript;
+    autoResize(document.getElementById("userInput"));
+    if (e.results[e.results.length-1].isFinal) {
+      isListening = false;
+      document.getElementById("micBtn").classList.remove("listening");
+      document.getElementById("userInput").placeholder = "Listening...";
+      clearTimeout(restartTimer);
+      setTimeout(function() {
+        sendMessage();
+        if (voiceEnabled) scheduleRestart(1600);
+      }, 400);
+    }
+  };
+
+  recognition.onerror = function(e) {
+    isListening = false;
+    document.getElementById("micBtn").classList.remove("listening");
+    clearTimeout(restartTimer);
+    // no-speech and aborted are normal — silently restart, no message
+    if (e.error === "no-speech" || e.error === "aborted") {
+      if (voiceEnabled) scheduleRestart(micRestartMs);
+    } else if (e.error === "not-allowed") {
+      voiceEnabled = false;
+      clearTimeout(restartTimer);
+      document.getElementById("micBtn").classList.remove("listening");
+      document.getElementById("userInput").placeholder = "Type your answer or choice here...";
+      document.getElementById("micBtn").title = "Voice input";
+      syncNavVoice();
+    } else {
+      // Only show error message for genuine hardware/network errors
+      if (voiceEnabled) scheduleRestart(2000);
+    }
+  };
+
+  recognition.onend = function() {
+    isListening = false;
+    document.getElementById("micBtn").classList.remove("listening");
+    clearTimeout(restartTimer);
+    if (voiceEnabled) scheduleRestart(micRestartMs);
+  };
+}
+
+function scheduleRestart(ms) {
+  clearTimeout(restartTimer);
+  restartTimer = setTimeout(function() {
+    if (voiceEnabled && !isListening) {
+      try { recognition.start(); }
+      catch(e) { /* already running */ }
+    }
+  }, ms || micRestartMs);
+}
+
+function toggleMic() {
+  var btn = document.getElementById("micBtn");
+  if (btn.classList.contains("unsupported")) return;
+  if (!recognition) initVoice();
+
+  if (voiceEnabled) {
+    // Turn OFF
+    voiceEnabled = false;
+    isListening  = false;
+    stopTts();
+    clearTimeout(restartTimer);
+    btn.classList.remove("listening");
+    btn.title = "Voice input";
+    document.getElementById("userInput").placeholder = "Type your answer or choice here...";
+    try { recognition.abort(); } catch(e) {}
+  } else {
+    // Turn ON
+    voiceEnabled = true;
+    btn.title = "Click to turn off voice";
+    document.getElementById("userInput").placeholder = "Listening...";
+    scheduleRestart(300);
+  }
+  syncNavVoice();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function openingMsg(){ say("Hey — I'm here to cut your bills. What's bugging you most?",["High Water Bill 💧","Electric / Gas Spikes ⚡","Payroll / Benefits 👥","Just save money 💰"]); }
+window.onload=function(){ initEmailJS(); initVoice(); updateDashboard(); syncNavVoice(); setTimeout(openingMsg,600); };
+</script>
+</body>
+</html>
