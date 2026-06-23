@@ -1226,6 +1226,11 @@ function payrollCrunch(){
 
 function clientHandle(input){
   if(D.step === "c_email"){
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(input.trim())){
+      say("That doesn't look like a valid email address — can you double check and try again?");
+      return;
+    }
     D.data.clientEmail = input.trim();
     say("Got it! And what's your name?",null,600);
     D.step = "c_name";
